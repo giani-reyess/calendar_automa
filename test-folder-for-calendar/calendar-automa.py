@@ -1,7 +1,8 @@
-from textwrap import indent
 import pandas as pd 
-import json
 import csv
+import os
+# To managae paths incompatibility between Windows and Unix 
+from pathlib import Path 
 from datetime import datetime, timedelta
 
 # Print entire dataframes  
@@ -156,12 +157,38 @@ def createevents():
 
 print(createevents())
 
+# SAVE SHIFTS.CSV IN A DIRECTORY OF NAME SHIFTS
 
-with open("shifts.csv", mode="w", newline="", encoding="utf-8") as file:
-    writer = csv.DictWriter(file, fieldnames=createevents()[0].keys())
+# Create a directory with name "shifts" if don't exits already
+try:
+    # Path to the directory
+    shift_dir_path = Path.cwd() / "shifts" 
 
-    # Write the header row
-    writer.writeheader()
+    # Check if the directory exists
+    if not Path(shift_dir_path).is_dir():
+        Path.mkdir(shift_dir_path)
 
-    # Write the data rows
-    writer.writerows(createevents())
+        # Check if the directory was created
+        if Path(shift_dir_path).is_dir():
+            print("Directory created successfully")
+
+    elif Path(shift_dir_path).is_dir():
+        print("Directory already exists")
+
+except  Exception as e:
+    print(e)
+
+
+# Write the csv file with the shifts
+with open(shift_dir_path / "shifts.csv", mode='w') as file:
+    try:
+        writer = csv.DictWriter(file, fieldnames=createevents()[0].keys())
+
+        # Write the header row (createevents()[0].keys())
+        writer.writeheader()
+
+        # Write the data rows
+        writer.writerows(createevents())
+
+    except Exception as e:
+        print(e)
